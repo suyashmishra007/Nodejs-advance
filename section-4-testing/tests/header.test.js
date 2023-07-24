@@ -1,22 +1,32 @@
 const puppeteer = require('puppeteer');
 
-test('Add two numbers',() => {
-    const sum =  1 + 2 ;
-    expect(sum).toEqual(3);
-})
+let browser , page ;
 
-
-test('We cam launch a browser',async () => {
-    const browser = await puppeteer.launch({headless: false});
-    const page = await browser.newPage();
+beforeEach(async ()=>{
+    browser = await puppeteer.launch({headless : true});
+    page = await browser.newPage({});
     
     await page.goto('http://localhost:3000');
+})
 
+afterEach(async ()=>{
+    await browser.close();
+})
+
+test('Header has a correct text',async () => {
     const text = await page.$eval('a.brand-logo',ele => ele.innerHTML)
     expect(text).toEqual('Blogster');
-
-    await browser.close();
-
 })
+
+test('Clicking login starts oauth flow',async () => {
+    await page.click('.right a');
+    const url = await page.url();
+    expect(url).toMatch(/accounts\.google\.com/);
+})
+
+test('',()=>{
+    
+})
+
 
 
