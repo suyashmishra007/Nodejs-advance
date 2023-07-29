@@ -1,17 +1,16 @@
 const puppeteer = require('puppeteer');
 const sessionFactory = require('./factories/sessionFactory');
+const userFactory = require('./factories/userFactory');
+const Page = require('./helpers/page');
+let page;
 
-let browser , page ;
-
-beforeEach(async ()=>{
-    browser = await puppeteer.launch({headless : true});
-    page = await browser.newPage({});
-    
+beforeEach(async () => {
+    page = await Page.build();
     await page.goto('http://localhost:3000');
 })
 
-afterEach(async ()=>{
-    await browser.close();
+afterEach(async () => {
+    await page.close();
 })
 
 test('Header has a correct text', async () => {
@@ -27,14 +26,26 @@ test('Clicking login starts oauth flow',async () => {
 
 test('When signed in , shows logout button', async ()=>{
 
-    const { session , sig } = sessionFactory();
+    const user = await userFactory();
 
+    const {
+        session,
+        sig
+    } = await sessionFactory(user);
     // Set above values on chromium cookie
-    await page.setCookie( { name : 'session' , value : session});
-    await page.setCookie( { name : 'session.sig' , value : sig});
+
+    const cookies = [{
+        'name': 'session',
+        'value': session
+    }, {
+        'name': 'session.sig',
+        'value': sig
+    }];
+
+    await page.setCookie(...cookies);
 
     // refresh the page
-    await page.goto('http://localhost:3000');   
+    await page.goto('http://localhost:3000');
 
     // await page.waitFor('a[href="/auth/logout"]')
 
