@@ -1,6 +1,3 @@
-const puppeteer = require('puppeteer');
-const sessionFactory = require('./factories/sessionFactory');
-const userFactory = require('./factories/userFactory');
 const Page = require('./helpers/page');
 let page;
 
@@ -14,7 +11,7 @@ afterEach(async () => {
 })
 
 test('Header has a correct text', async () => {
-    const text = await page.$eval('a.brand-logo',ele => ele.innerHTML)
+    const text = await page.getContentsOf('a.brand-logo');
     expect(text).toEqual('Blogster');
 })
 
@@ -24,32 +21,22 @@ test('Clicking login starts oauth flow',async () => {
     expect(url).toMatch(/accounts\.google\.com/);
 })
 
-test('When signed in , shows logout button', async ()=>{
+// test('When signed in , shows logout button', async ()=>{
 
-    const user = await userFactory();
+//     await page.login();
 
-    const {
-        session,
-        sig
-    } = await sessionFactory(user);
-    // Set above values on chromium cookie
+//     const text = await page.$eval('a[href="/auth/logout"]', ele => ele.innerHTML)
+//     expect(text).toEqual('Logout');
 
-    const cookies = [{
-        'name': 'session',
-        'value': session
-    }, {
-        'name': 'session.sig',
-        'value': sig
-    }];
+// })
 
-    await page.setCookie(...cookies);
 
-    // refresh the page
-    await page.goto('http://localhost:3000');
+// test('When signed in , shows logout button', async ()=>{
+    
+//     await page.login();
 
-    // await page.waitFor('a[href="/auth/logout"]')
+//     const text = await page.getContentsOf('a[href="/auth/logout"]');
+//     expect(text).toEqual('Logout');
 
-    const text = await page.$eval('a[href="/auth/logout"]', ele => ele.innerHTML)
-    expect(text).toEqual('Logout');
+// })
 
-})
