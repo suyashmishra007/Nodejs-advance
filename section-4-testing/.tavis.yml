@@ -6,9 +6,16 @@ services:
   - mongodb
   - redis-server
 env:
-  - NODE_ENV=ci
+  - NODE_ENV=ci PORT=3000
 cache:
   directories:
     - node_modules
     - client/node_modules
-# install:
+install:
+  - npm install
+  - npm run build
+script:
+  # if the shell is closed , dont kill anything this commands creates  || run the server || run this command in the subshell(in the background)
+  - nohup npm run start &
+  - sleep 3
+  - npm run test
